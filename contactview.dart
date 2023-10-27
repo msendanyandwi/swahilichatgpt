@@ -849,10 +849,11 @@ class _ContactsViewState extends State<ContactsView> {
               GestureDetector(
                 onTap: () async {
                   print("Tapped on the icon");
-                  await _showContactDetailsBottomSheet(context, contact);
+                  // await _showContactDetailsBottomSheet(context, contact);
+                  _showOptionsBottomSheet(context, contact);
                 },
                 child: const Icon(
-                  Icons.edit,
+                  Icons.more_vert,
                   color: Colors.grey,
                 ),
               ),
@@ -860,6 +861,67 @@ class _ContactsViewState extends State<ContactsView> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showOptionsBottomSheet(BuildContext context, Contact contact) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext bc) {
+        return Wrap(
+          children: <Widget>[
+            ListTile(
+              leading: const Icon(Icons.edit),
+              title: const Text('Edit'),
+              onTap: () async {
+                Navigator.pop(context);
+                // Call your _showContactDetailsBottomSheet function here
+                await _showContactDetailsBottomSheet(context, contact);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.chat),
+              title: const Text('Send via WhatsApp'),
+              onTap: () async {
+                Navigator.pop(context);
+                String url = "https://wa.me/${contact.phoneNumber}?text=Hello";
+                if (await canLaunch(url)) {
+                  await launch(url);
+                } else {
+                  // Handle the error or show a message to the user
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.call),
+              title: const Text('Make a Call'),
+              onTap: () async {
+                Navigator.pop(context);
+                String url = "tel:${contact.phoneNumber}";
+                if (await canLaunch(url)) {
+                  await launch(url);
+                } else {
+                  // Handle the error or show a message to the user
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.email),
+              title: const Text('Send Email'),
+              onTap: () async {
+                Navigator.pop(context);
+                String url =
+                    "mailto:${contact.email}?subject=Subject&body=Body";
+                if (await canLaunch(url)) {
+                  await launch(url);
+                } else {
+                  // Handle the error or show a message to the user
+                }
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
