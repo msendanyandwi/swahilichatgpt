@@ -84,11 +84,11 @@ class _ContactsViewState extends State<ContactsView> {
   }
 
   String? encodeQueryParameters(Map<String, String> params) {
-  return params.entries
-      .map((MapEntry<String, String> e) =>
-          '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
-      .join('&');
-}
+    return params.entries
+        .map((MapEntry<String, String> e) =>
+            '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+        .join('&');
+  }
 
   final List<Contact> contacts = [];
 
@@ -974,7 +974,6 @@ class _ContactsViewState extends State<ContactsView> {
               onTap: () async {
                 Navigator.pop(context);
 
-                
                 FirebaseAuth auth = FirebaseAuth.instance;
                 User? user = auth.currentUser;
 
@@ -984,11 +983,11 @@ class _ContactsViewState extends State<ContactsView> {
                 final Uri emailLaunchUri = Uri(
                   scheme: 'mailto',
                   path: contact.email,
-         
-                   query: encodeQueryParameters(<String, String>{
-      'subject': 'Nice Meeting You!',
-      'body':'Dear ${contact.name},\n\n I wanted to express my gratitude for our recent meeting. It was a pleasure connecting with you.\n\nWe met at ${contact.address}\n\n Yours Faithfully \n\n $displayName! ',
-    }),
+                  query: encodeQueryParameters(<String, String>{
+                    'subject': 'Nice Meeting You!',
+                    'body':
+                        'Dear ${contact.name},\n\n I wanted to express my gratitude for our recent meeting. It was a pleasure connecting with you.\n\nWe met at ${contact.address}\n\n Yours Faithfully \n\n $displayName! ',
+                  }),
                 );
 
                 if (await launchUrl(emailLaunchUri)) {
