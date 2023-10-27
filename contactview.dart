@@ -69,6 +69,20 @@ class _ContactsViewState extends State<ContactsView> {
     return contacts;
   }
 
+  Future<String> fetchDisplayName(String uid) async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    DocumentSnapshot userSnapshot =
+        await firestore.collection('SwacardUzers').doc(uid).get();
+    if (userSnapshot.exists) {
+      Map<String, dynamic> userData =
+          userSnapshot.data() as Map<String, dynamic>;
+      String displayName = userData['displayName'];
+      return displayName;
+    } else {
+      return "";
+    }
+  }
+
   final List<Contact> contacts = [];
 
   List<Contact> filteredContacts = [];
@@ -867,12 +881,58 @@ class _ContactsViewState extends State<ContactsView> {
               title: const Text('Send via WhatsApp'),
               onTap: () async {
                 Navigator.pop(context);
-                String url =
-                    "https://wa.me/${contact.phoneNumber}?text=Hello, I wanted to express my gratitude for our recent meeting. It was a pleasure connecting with you.";
-                if (await canLaunch(url)) {
-                  await launch(url);
+
+                FirebaseAuth auth = FirebaseAuth.instance;
+                User? user = auth.currentUser;
+
+                if (user != null) {
+                  String uid = user.uid; // Get the UID from FirebaseAuth
+
+                  String displayName = await fetchDisplayName(uid);
+
+                  String message =
+                      "Hello ${contact.name}, I wanted to express my gratitude for our recent meeting. It was a pleasure connecting with you.\nIts $displayName here! we met at ${contact.address}";
+
+                  String url =
+                      "https://wa.me/${contact.phoneNumber}?text=${Uri.encodeComponent(message)}";
+
+                  if (await canLaunch(url)) {
+                    await launch(url);
+                  } else {
+                    // Handle the error or show a message to the user
+                  }
+                } else {
+                  // Handle the case where the user is not authenticated
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.sms),
+              title: const Text('Send Sms'),
+              onTap: () async {
+                Navigator.pop(context);
+
+                FirebaseAuth auth = FirebaseAuth.instance;
+                User? user = auth.currentUser;
+
+                String uid = user!.uid; // Get the UID from FirebaseAuth
+
+                String displayName = await fetchDisplayName(uid);
+                final Uri emailLaunchUri = Uri(
+                  scheme: 'sms',
+                  path: contact.email,
+                  queryParameters: {
+                    'subject': '',
+                    'body':
+                        'Hello ${contact.name}, I wanted to express my gratitude for our recent meeting. It was a pleasure connecting with you.\nIts $displayName here! we met at ${contact.address}',
+                  },
+                );
+
+                if (await launchUrl(emailLaunchUri)) {
+                  await canLaunchUrl(emailLaunchUri);
                 } else {
                   // Handle the error or show a message to the user
+                  print('Could not launch $emailLaunchUri');
                 }
               },
             ),
