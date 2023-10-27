@@ -83,6 +83,13 @@ class _ContactsViewState extends State<ContactsView> {
     }
   }
 
+  String? encodeQueryParameters(Map<String, String> params) {
+  return params.entries
+      .map((MapEntry<String, String> e) =>
+          '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+      .join('&');
+}
+
   final List<Contact> contacts = [];
 
   List<Contact> filteredContacts = [];
@@ -903,7 +910,7 @@ class _ContactsViewState extends State<ContactsView> {
                   String displayName = await fetchDisplayName(uid);
 
                   String message =
-                      "Hello ${contact.name}, I wanted to express my gratitude for our recent meeting. It was a pleasure connecting with you.\nIts $displayName here! we met at ${contact.address}";
+                      "Hello ${contact.name},\n\n I wanted to express my gratitude for our recent meeting. It was a pleasure connecting with you.\n\n Its $displayName here! we met at ${contact.address}";
 
                   String url =
                       "https://wa.me/${contact.phoneNumber}?text=${Uri.encodeComponent(message)}";
@@ -936,7 +943,7 @@ class _ContactsViewState extends State<ContactsView> {
                   queryParameters: {
                     'subject': '',
                     'body':
-                        'Hello ${contact.name}, I wanted to express my gratitude for our recent meeting. It was a pleasure connecting with you.\nIts $displayName here! we met at ${contact.address}',
+                        'Hello ${contact.name}, \n\n I wanted to express my gratitude for our recent meeting. It was a pleasure connecting with you.\n\nIts $displayName here! we met at ${contact.address}',
                   },
                 );
 
@@ -966,13 +973,22 @@ class _ContactsViewState extends State<ContactsView> {
               title: const Text('Send Email'),
               onTap: () async {
                 Navigator.pop(context);
+
+                
+                FirebaseAuth auth = FirebaseAuth.instance;
+                User? user = auth.currentUser;
+
+                String uid = user!.uid; // Get the UID from FirebaseAuth
+
+                String displayName = await fetchDisplayName(uid);
                 final Uri emailLaunchUri = Uri(
                   scheme: 'mailto',
                   path: contact.email,
-                  queryParameters: {
-                    'subject': '',
-                    'body': '',
-                  },
+         
+                   query: encodeQueryParameters(<String, String>{
+      'subject': 'Nice Meeting You!',
+      'body':'Dear ${contact.name},\n\n I wanted to express my gratitude for our recent meeting. It was a pleasure connecting with you.\n\nWe met at ${contact.address}\n\n Yours Faithfully \n\n $displayName! ',
+    }),
                 );
 
                 if (await launchUrl(emailLaunchUri)) {
