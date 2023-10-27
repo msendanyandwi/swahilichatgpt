@@ -537,24 +537,36 @@ class _ContactsViewState extends State<ContactsView> {
             child: Wrap(
               children: <Widget>[
                 ListTile(
-                    leading: Icon(Icons.file_download),
-                    title: Text('Export as CSV'),
-                    onTap: () async {
-                      Navigator.pop(context); // Close the bottom sheet
+                  leading: Icon(Icons.file_download),
+                  title: Text('Export as CSV to any CRM'),
+                  onTap: () async {
+                    Navigator.pop(context); // Close the bottom sheet
 
-                      String downloadURL = await exportContacts();
-                      if (await canLaunch(downloadURL)) {
-                        await launch(downloadURL);
-                      } else {
-                        throw 'Could not launch $downloadURL';
-                      }
-                    }),
+                    String downloadURL = await exportContacts();
+                    Uri downloadUri = Uri.parse(downloadURL);
+
+                    if (await launchUrl(downloadUri)) {
+                      await canLaunchUrl(downloadUri);
+                    } else {
+                      throw 'Could not launch $downloadURL';
+                    }
+                  },
+                ),
                 ListTile(
                   leading: Icon(Icons.cloud_upload),
-                  title: Text('Export to Zapier'),
+                  title: Text('Connect to Zapier, Access 5000+ CRM'),
                   onTap: () {
                     Navigator.pop(context); // Close the bottom sheet
-                    // Add your Zapier export logic here
+                    // Show a toast message indicating the feature is coming soon
+                    Fluttertoast.showToast(
+                      msg: 'This feature is coming soon!',
+                      toastLength: Toast.LENGTH_SHORT,
+                      gravity: ToastGravity.BOTTOM,
+                      timeInSecForIosWeb: 1,
+                      backgroundColor: Colors.grey,
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    );
                   },
                 ),
               ],
@@ -869,7 +881,7 @@ class _ContactsViewState extends State<ContactsView> {
           children: <Widget>[
             ListTile(
               leading: const Icon(Icons.edit),
-              title: const Text('Edit'),
+              title: const Text('Edit Contact'),
               onTap: () async {
                 Navigator.pop(context);
                 // Call your _showContactDetailsBottomSheet function here
