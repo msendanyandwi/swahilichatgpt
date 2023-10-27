@@ -413,7 +413,6 @@ class _ContactsViewState extends State<ContactsView> {
     User? currentUser = FirebaseAuth.instance.currentUser;
 
     if (currentUser == null) {
-      print('Error: No user is currently logged in');
       return;
     }
 
@@ -422,10 +421,7 @@ class _ContactsViewState extends State<ContactsView> {
           .collection('UserContacts')
           .doc(docId)
           .delete();
-      print('User contact deleted successfully');
-    } catch (e) {
-      print('Error deleting user contact: $e');
-    }
+    } catch (e) {}
   }
 
   void _updateContact(
@@ -478,10 +474,7 @@ class _ContactsViewState extends State<ContactsView> {
           if (index != -1) {
             // Replace the old contact with the updated one in the contacts list
             contacts[index] = updatedContact;
-            print('Contact updated: ${updatedContact.name}');
-          } else {
-            print('Contact not found in list.');
-          }
+          } else {}
         });
 
         // Show a success toast
@@ -492,12 +485,8 @@ class _ContactsViewState extends State<ContactsView> {
           backgroundColor: Colors.green,
           textColor: Colors.white,
         );
-      }).catchError((error) {
-        print('Error updating Firestore document: $error');
-      });
-    } catch (e) {
-      print('Error updating contact: $e');
-    }
+      }).catchError((error) {});
+    } catch (e) {}
   }
 
   void showSuccessToast() {
@@ -518,22 +507,6 @@ class _ContactsViewState extends State<ContactsView> {
       backgroundColor: Colors.red,
       textColor: Colors.white,
     );
-  }
-
-  void filterContacts(String query) {
-    setState(() {
-      if (query.isNotEmpty) {
-        filteredContacts = contacts.where((contact) {
-          final nameLower = contact.name.toLowerCase();
-          final orgLower = contact.organization.toLowerCase();
-          return nameLower.contains(query.toLowerCase()) ||
-              orgLower.contains(query.toLowerCase());
-        }).toList();
-      } else {
-        filteredContacts =
-            contacts.toList(); // Show all contacts when the query is empty
-      }
-    });
   }
 
   void _showExportOptions(BuildContext context) {
@@ -623,9 +596,24 @@ class _ContactsViewState extends State<ContactsView> {
 
     // Get the download URL
     String downloadURL = await ref.getDownloadURL();
-    print('Download URL: $downloadURL');
 
     return downloadURL;
+  }
+
+  void filterContacts(String query) {
+    setState(() {
+      if (query.isNotEmpty) {
+        filteredContacts = contacts.where((contact) {
+          final nameLower = contact.name.toLowerCase();
+          final orgLower = contact.organization.toLowerCase();
+          return nameLower.contains(query.toLowerCase()) ||
+              orgLower.contains(query.toLowerCase());
+        }).toList();
+      } else {
+        filteredContacts =
+            contacts.toList(); // Show all contacts when the query is empty
+      }
+    });
   }
 
   @override
@@ -864,7 +852,6 @@ class _ContactsViewState extends State<ContactsView> {
             children: [
               GestureDetector(
                 onTap: () async {
-                  print("Tapped on the icon");
                   // await _showContactDetailsBottomSheet(context, contact);
                   _showOptionsBottomSheet(context, contact);
                 },
@@ -949,10 +936,7 @@ class _ContactsViewState extends State<ContactsView> {
 
                 if (await launchUrl(emailLaunchUri)) {
                   await canLaunchUrl(emailLaunchUri);
-                } else {
-                  // Handle the error or show a message to the user
-                  print('Could not launch $emailLaunchUri');
-                }
+                } else {}
               },
             ),
             ListTile(
@@ -992,10 +976,7 @@ class _ContactsViewState extends State<ContactsView> {
 
                 if (await launchUrl(emailLaunchUri)) {
                   await canLaunchUrl(emailLaunchUri);
-                } else {
-                  // Handle the error or show a message to the user
-                  print('Could not launch $emailLaunchUri');
-                }
+                } else {}
               },
             ),
             ListTile(
