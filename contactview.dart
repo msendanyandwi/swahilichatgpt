@@ -616,23 +616,6 @@ class _ContactsViewState extends State<ContactsView> {
           actions: [
             Row(
               children: [
-                // IconButton(
-                //   onPressed: () async {
-                //     String downloadURL = await exportContacts();
-                //     if (await canLaunch(downloadURL)) {
-                //       await launch(downloadURL);
-                //     } else {
-                //       throw 'Could not launch $downloadURL';
-                //     }
-                //   },
-                //   icon: SvgPicture.asset(
-                //     'assets/homeicons/export.svg',
-                //     color: const Color.fromRGBO(255, 255, 255, 1),
-                //     width: 30,
-                //     height: 30,
-                //   ),
-                // ),
-
                 IconButton(
                   onPressed: () {
                     _showExportOptions(context);
@@ -884,7 +867,8 @@ class _ContactsViewState extends State<ContactsView> {
               title: const Text('Send via WhatsApp'),
               onTap: () async {
                 Navigator.pop(context);
-                String url = "https://wa.me/${contact.phoneNumber}?text=Hello";
+                String url =
+                    "https://wa.me/${contact.phoneNumber}?text=Hello, I wanted to express my gratitude for our recent meeting. It was a pleasure connecting with you.";
                 if (await canLaunch(url)) {
                   await launch(url);
                 } else {
@@ -910,12 +894,34 @@ class _ContactsViewState extends State<ContactsView> {
               title: const Text('Send Email'),
               onTap: () async {
                 Navigator.pop(context);
-                String url =
-                    "mailto:${contact.email}?subject=Subject&body=Body";
-                if (await canLaunch(url)) {
-                  await launch(url);
+                final Uri emailLaunchUri = Uri(
+                  scheme: 'mailto',
+                  path: contact.email,
+                  queryParameters: {
+                    'subject': '',
+                    'body': '',
+                  },
+                );
+
+                if (await launchUrl(emailLaunchUri)) {
+                  await canLaunchUrl(emailLaunchUri);
                 } else {
                   // Handle the error or show a message to the user
+                  print('Could not launch $emailLaunchUri');
+                }
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.contact_page),
+              title: const Text('Save Contact'),
+              onTap: () async {
+                Navigator.pop(context);
+                final String url = contact.content;
+
+                if (await canLaunchUrl(Uri.parse(url))) {
+                  await launchUrl(Uri.parse(url));
+                } else {
+                  // Handle the situation when the URL can't be opened
                 }
               },
             ),
